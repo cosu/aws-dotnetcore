@@ -1,6 +1,7 @@
 # aws-dotnetcore
 
-AWS related tools written in .net core.
+AWS related tools written in .NET core or PowerShell Core
+
 ```bash
 git clone
 dotnet restore
