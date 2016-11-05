@@ -44,4 +44,4 @@ remove old  permissions from the security group.
 
 ### Powershell
 
-Altenatively there'a powershell script which performs the same operaton. See `UpdateSecurityGroup.ps1. The script has been tested with AWS Tools for PowerShell Core Edition.
+Altenatively there'a powershell script which performs the same operaton. See `UpdateSecurityGroup.ps1`. The script has been tested with AWS Tools for PowerShell Core Edition.
