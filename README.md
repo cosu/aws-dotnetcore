@@ -17,7 +17,7 @@ remove old  permissions from the security group.
 
 * Register the host with DynDns.
 
-* Instead of manually managing the AWS security group permissions you periodically run this tool to update the security group.   
+* Instead of manually managing the AWS security group permissions periodically run this tool to update the security group.   
 
 
 ### Configuration
