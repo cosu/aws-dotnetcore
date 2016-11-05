@@ -12,8 +12,12 @@ dotnet run
 This tool takes a hostname, resolves its ip and if needed updates an EC2 security group granting access the resolved IP. If the permission is updated then it will also
 remove old  permissions from the security group. 
 
-The usecase is a host which is registed with dyndns and its ip changes relatively frequently. 
-Instead of manually managing the AWS security group permissions you could periodically run this tool to update the security group.  
+### Usecase 
+* A host needs access to a running EC2 instance but its public IP changes frequently.
+
+* Register the host with DynDns.
+
+* Instead of manually managing the AWS security group permissions you periodically run this tool to update the security group.   
 
 
 ### Configuration
