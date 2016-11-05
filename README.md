@@ -41,3 +41,7 @@ remove old  permissions from the security group.
 * `AWS.Profile` - The AWS profile  to use to retrive credentials. The profile data is kept usually in `$HOME/.aws/credentials`. See the AWS docs for how to manage AWS credential profiles.
 * `AWS.Region` - the AWS region where the security group lives
 * `logLevel` - logging level. Info or Debug.
+
+### Powershell
+
+Altenatively there'a powershell script which performs the same operaton. See `UpdateSecurityGroup.ps1. The script has been tested with AWS Tools for PowerShell Core Edition.
