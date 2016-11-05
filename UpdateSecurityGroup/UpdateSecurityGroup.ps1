@@ -1,35 +1,63 @@
 # tested with AWS Tools for PowerShell Core Edition
 
-$region = "us-east-1"
-$securityGroupId = "sg-c54879ac"
-$hostname = "cosu.ro"
 
-# resolve host to ip
-$currentIp = [System.Net.Dns]::GetHostEntryAsync($hostname).Result.AddressList[0].IpAddressToString + "/32"
+function GetSecurityGroup($profile, $region, $securityGroupId)
 
-Write-Host "Current IP address: $currentIp"
-
-# get security group
-$securityGroup = Get-EC2SecurityGroup -Region $region -AccessKey $accessKey -SecretKey $secretKey -GroupId $securityGroupId
-
-# check if the ip permissions contain the current ip
-$containsCurrentIp=$false
-foreach ($ipPermisson in $securityGroup.IpPermissions)
 {
-	If ($ipPermisson.IpRanges.Contains($currentIp))
+	# get security group
+	$securityGroup = Get-EC2SecurityGroup -ProfileName $profile -Region $region -GroupId $securityGroupId
+
+	if (-not $securityGroup) 
 	{
-		Write-Host "Current IP already present in SecurityGroup" $securityGroupId
-		$containsCurrentIp=$true		
-		break
+		Write-Host "Could not find SecurityGroup with id $securityGroupId"
+	}
+	return $securityGroup
+}
+
+function SecurityGroupContainsIpRange($securityGroup, $ipRange)
+{
+	# check if the ip permissions contain the current ip
+	$containsCurrentIpRange=$false
+	foreach ($ipPermisson in $securityGroup.IpPermissions)
+	{
+		If ($ipPermisson.IpRanges.Contains($ipRange))
+		{
+			Write-Host "Current IP range already present in SecurityGroup" $securityGroupId
+			$containsCurrentIpRange=$true
+			break
+		}
+	}
+	return $containsCurrentIpRange
+}
+function UpdateSecurityGroup($region, $securityGroupId, $profile, $hostname, $port)
+{
+	# resolve host to ip
+	$ipRange = [System.Net.Dns]::GetHostEntryAsync($hostname).Result.AddressList[0].IpAddressToString + "/32"
+
+	Write-Host "Current IP address: $ipRange"
+
+	$securitygroup = GetSecurityGroup -profile $profile -region $region -securityGroupId $securityGroupId  
+
+	$containsCurrentIp = SecurityGroupContainsIpRange -securityGroup $securityGroup -ipRange $ipRange
+
+	if (-not $containsCurrentIp)
+	{
+		Write-Host "Adding IP $ipRange to SecurityGroup $securityGroupId"
+
+		Grant-EC2SecurityGroupIngress -ProfileName $profile -Region $region -GroupId $securityGroupId -IpPermissions `
+			@{IpProtocol = 'tcp'; FromPort = $port; ToPort = $port; IpRanges =  @($ipRange)}
+		
+		# revoke old ips
+		Write-Host "Revoking IP Ranges:" $($securityGroup.IpPermissions| select -ExpandProperty IpRanges)
+		
+		Revoke-EC2SecurityGroupIngress -ProfileName $profile -Region $region -GroupId $securityGroupId -IpPermissions $securityGroup.IpPermissions			
 	}
 }
 
-if (-not $containsCurrentIp)
-{
-	Write-Host "Adding IP $currentIp to SecurityGroup $securityGroupId"
-	$newPermission = @{IpProtocol = 'tcp'; FromPort = 3389; ToPort = 3389; IpRanges =  @($currentIp)}
-	Grant-EC2SecurityGroupIngress -Region $region -GroupId $securityGroupId -IpPermissions $newPermission
-	
-	# revoke old ips
-	Revoke-EC2SecurityGroupIngress -Region $region -GroupId $securityGroupId -IpPermissions $ipPermisson			
-}
+$region = "us-east-1"
+$securityGroupId = "sg-c54879ac"
+$hostname = "cosu.ro"
+$port = 3389
+$profile = "default"
+
+UpdateSecurityGroup  -profile $profile -region $region -securityGroupId $securityGroupId -hostname $hostname -port $port
