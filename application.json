@@ -1,9 +1,10 @@
 {
   "host": "cosu.ro",
-  "securityGroupId":"sg-75bd250e",
-  "ports": ["3389"],
+  "securityGroupId":"sg-c54879ac",
+  "port": "3389",
   "AWS": {
     "Profile": "default",
     "Region": "us-east-1"
-  }
+  },
+  "logLevel":"Debug"
 }
